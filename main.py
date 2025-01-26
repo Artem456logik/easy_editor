@@ -24,12 +24,14 @@ def filter(files: list[str]):
 
 ui.setupUi(win)
 def choose_workdir():
+    ui.files_list.clear()
     global workdir
     workdir = QFileDialog.getExistingDirectory()
     files_list = os.listdir(workdir)
-    files_list = filter(files_list)
 
+    files_list = filter(files_list)
     ui.files_list.addItems(files_list)
+    
 ui.chose_dir_btn.clicked.connect(choose_workdir)
 
 class ImageProcessor():
@@ -58,11 +60,39 @@ class ImageProcessor():
         if not os.path.isdir(save_dir_path):
             os.mkdir(save_dir_path)
 
-            full_path = os.path.join(save_dir_path, self.filename)
-            self.image.save(full_path)
+        full_path = os.path.join(save_dir_path, self.filename)
+        self.image.save(full_path)
 
     def makeBW(self):
         self.image = self.image.convert("L")
+        self.saveImage()
+        modifed_path = os.path.join(workdir, self.modifed_subfolder, self.filename)
+        self.full_path = modifed_path
+        self.showImage()
+
+    def makeFlip(self):
+        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.saveImage()
+        modifed_path = os.path.join(workdir, self.modifed_subfolder, self.filename)
+        self.full_path = modifed_path
+        self.showImage()
+
+    def TurnLeft(self):
+        self.image = self.image.transpose(Image.ROTATE_90)
+        self.saveImage()
+        modifed_path = os.path.join(workdir, self.modifed_subfolder, self.filename)
+        self.full_path = modifed_path
+        self.showImage()
+
+    def TurnRight(self):
+        self.image = self.image.transpose(Image.ROTATE_270)
+        self.saveImage()
+        modifed_path = os.path.join(workdir, self.modifed_subfolder, self.filename)
+        self.full_path = modifed_path
+        self.showImage()
+
+    def makeSharpen(self):
+        self.image = self.image.filter(ImageFilter.SHARPEN)
         self.saveImage()
         modifed_path = os.path.join(workdir, self.modifed_subfolder, self.filename)
         self.full_path = modifed_path
@@ -77,6 +107,14 @@ def show_choosen_image():
 
 ui.files_list.currentItemChanged.connect(show_choosen_image)
 ui.bw_btn.clicked.connect(ip.makeBW)
+ui.mirror_btn.clicked.connect(ip.makeFlip)
+ui.left_btn.clicked.connect(ip.TurnLeft)
+ui.right_btn.clicked.connect(ip.TurnRight)
+ui.sharp_btn.clicked.connect(ip.makeSharpen)
+
+
+
+
 
 ui.files_list.currentItemChanged.connect(show_choosen_image)
 win.show()
